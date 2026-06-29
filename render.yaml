@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: crm
+    runtime: docker
+    dockerfilePath: ./Dockerfile.prod
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # paste your Neon postgres URL here in Render dashboard
+      - key: REDIS_URL
+        sync: false          # paste your Upstash redis URL here in Render dashboard
+      - key: SECRET_KEY
+        generateValue: true  # Render auto-generates a strong random value
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRY_HOURS
+        value: "4"
+      - key: ALLOWED_EMAIL_DOMAIN
+        value: newtrendscommerce.in
+      - key: ENVIRONMENT
+        value: development     # OTPs print to Render logs — check them in the dashboard
+      - key: SECURE_COOKIES
+        value: "true"          # ensures cookies work over HTTPS
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: ap-south-1
+      - key: SES_FROM_EMAIL
+        value: noreply@newtrendscommerce.in
+      - key: S3_BUCKET
+        value: ""

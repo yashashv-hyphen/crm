@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker --version)",
+      "Bash(podman --version)",
+      "Bash(docker info *)",
+      "Bash(podman-compose ps *)",
+      "Bash(podman-compose logs *)",
+      "Bash(podman logs *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "code-review-graph"
+  ]
+}

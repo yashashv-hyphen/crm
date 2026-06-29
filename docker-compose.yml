@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  db:
+    image: docker.io/postgres:15-alpine
+    network_mode: host
+    environment:
+      POSTGRES_DB: crm_db
+      POSTGRES_USER: crm_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: docker.io/redis:7-alpine
+    network_mode: host
+
+  backend:
+    build: ./backend
+    network_mode: host
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      DATABASE_URL: postgresql+asyncpg://crm_user:${DB_PASSWORD}@localhost:5432/crm_db
+      REDIS_URL: redis://localhost:6379/0
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_EXPIRY_HOURS: ${JWT_EXPIRY_HOURS:-4}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION:-ap-south-1}
+      SES_FROM_EMAIL: ${SES_FROM_EMAIL}
+      S3_BUCKET: ${S3_BUCKET}
+      ALLOWED_EMAIL_DOMAIN: ${ALLOWED_EMAIL_DOMAIN:-newtrendscommerce.in}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+
+  celery-worker:
+    build: ./backend
+    network_mode: host
+    command: celery -A app.celery_app worker --loglevel=info -c 4
+    environment:
+      DATABASE_URL: postgresql+asyncpg://crm_user:${DB_PASSWORD}@localhost:5432/crm_db
+      REDIS_URL: redis://localhost:6379/0
+      SECRET_KEY: ${SECRET_KEY}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION:-ap-south-1}
+      SES_FROM_EMAIL: ${SES_FROM_EMAIL}
+      S3_BUCKET: ${S3_BUCKET}
+      ALLOWED_EMAIL_DOMAIN: ${ALLOWED_EMAIL_DOMAIN:-newtrendscommerce.in}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    build: ./frontend
+    network_mode: host
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    depends_on:
+      - backend
+
+  nginx:
+    build: ./nginx
+    network_mode: host
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:

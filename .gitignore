@@ -1,0 +1,16 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+node_modules/
+dist/
+.DS_Store
+*.egg-info/
+.venv/
+venv/
+postgres_data/
+*.Zone.Identifier
+*.xlsx
+*.docx
