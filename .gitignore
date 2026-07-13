@@ -14,3 +14,4 @@ postgres_data/
 *.Zone.Identifier
 *.xlsx
 *.docx
+.superpowers/
