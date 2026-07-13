@@ -304,6 +304,7 @@ class PleAgentSummaryRow(BaseModel):
 
 
 class PleMcidDetailRow(BaseModel):
+    id: uuid.UUID
     mcid: str
     agent_name: str | None
     agent_user_id: uuid.UUID | None
