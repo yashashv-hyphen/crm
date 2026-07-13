@@ -181,7 +181,7 @@ LAUNCHES_FIELDS: list[tuple[str, list[str]]] = [
     ("fba_status", ["fba status", "is fba launched", "is fba active", "fba active", "is fba"]),
     ("sp_status", ["sp status", "is sp active", "is sp"]),
     ("cp_adoption", ["any deal adoption", "deal adoption cp", "coupon adoption", "is coupon active", "is coupon granted", "is cp"]),  # priority order: adoption-worded first, then "active", then "granted"
-    ("cross_launch_final_stage", ["cross launch final stage", "final stage"]),
+    ("cross_launch_final_stage", ["cross launch final stage", "final stage"]),  # must precede narf_cross_launch: "cross launch" substring-matches "cross launch final stage" headers too
     ("narf_cross_launch", ["narf cross launch", "narf", "is perfect launched", "cross launch"]),
     ("buyable_asin", ["buyable asin", "total live selection"]),
     ("launch_yn", ["launch yes no", "launch y n", "is launched"]),
