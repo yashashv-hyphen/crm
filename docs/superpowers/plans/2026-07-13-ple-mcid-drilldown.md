@@ -198,14 +198,16 @@ LAUNCHES_FIELDS: list[tuple[str, list[str]]] = [
     ("fba_status", ["fba status", "is fba launched", "is fba active", "fba active", "is fba"]),
     ("sp_status", ["sp status", "is sp active", "is sp"]),
     ("cp_adoption", ["any deal adoption", "deal adoption cp", "coupon adoption", "is coupon active", "is coupon granted", "is cp"]),  # priority order: adoption-worded first, then "active", then "granted"
+    ("cross_launch_final_stage", ["cross launch final stage", "final stage"]),  # must precede narf_cross_launch: "cross launch" substring-matches "cross launch final stage" headers too
     ("narf_cross_launch", ["narf cross launch", "narf", "is perfect launched", "cross launch"]),
     ("buyable_asin", ["buyable asin", "total live selection"]),
     ("launch_yn", ["launch yes no", "launch y n", "is launched"]),
     ("sp_yn", ["sp yes no", "sp y n"]),
     ("coupons_yn", ["coupons yes no", "coupons y n", "coupons"]),
-    ("cross_launch_final_stage", ["cross launch final stage", "final stage"]),
 ]
 ```
+
+**Correction (post-implementation, verified by task review):** the original version of this block placed `cross_launch_final_stage` last, which fails this task's own Step 3 acceptance test — `narf_cross_launch`'s `"cross launch"` candidate substring-matches a `"cross launch final stage"` header first since `map_columns` resolves fields in list order. `cross_launch_final_stage` must come before `narf_cross_launch`, as reflected above.
 
 - [ ] **Step 2: Add the same new candidates to `MCID_DETAIL_FIELDS`**
 
