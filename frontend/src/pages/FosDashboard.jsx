@@ -59,9 +59,9 @@ function PleTab() {
           </thead>
           <tbody className="divide-y divide-gray-50">
             {isLoading ? (
-              <tr><td colSpan={27} className="px-5 py-6 text-center text-gray-400">Loading...</td></tr>
+              <tr><td colSpan={28} className="px-5 py-6 text-center text-gray-400">Loading...</td></tr>
             ) : !mcidDetail?.length ? (
-              <tr><td colSpan={27} className="px-5 py-6 text-center text-gray-400">No PLE data for your MCIDs yet</td></tr>
+              <tr><td colSpan={28} className="px-5 py-6 text-center text-gray-400">No PLE data for your MCIDs yet</td></tr>
             ) : (
               mcidDetail.map((row) => (
                 <tr key={row.mcid} className="hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedMcid(row.mcid)}>
