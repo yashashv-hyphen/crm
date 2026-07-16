@@ -7,7 +7,7 @@ from fastapi import HTTPException, status
 from app.models.upload_file import UploadFile
 from app.models.user import User
 from app.services.s3_service import upload_file_to_s3
-from app.utils.excel_validator import validate_template1_pre_upload, validate_template2_pre_upload
+from app.utils.excel_validator import validate_template1_pre_upload, validate_template2_pre_upload, validate_regular_pre_upload, validate_call_pre_upload
 from app.config import settings
 
 _DEV_TEMP_DIR = tempfile.gettempdir()
@@ -28,6 +28,10 @@ async def create_upload_record(
     # Stage 1 validation
     if upload_type == "template1":
         errors = validate_template1_pre_upload(file_bytes)
+    elif upload_type == "regular":
+        errors = validate_regular_pre_upload(file_bytes)
+    elif upload_type == "calls":
+        errors = validate_call_pre_upload(file_bytes)
     else:
         errors = validate_template2_pre_upload(file_bytes)
 

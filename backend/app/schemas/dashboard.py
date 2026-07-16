@@ -3,11 +3,20 @@ from pydantic import BaseModel
 
 
 class StageSummaryRow(BaseModel):
-    activity_id: uuid.UUID
+    activity_id: uuid.UUID | None
     activity_name: str
     total_assigned: int
-    moved_to_next: int
-    pending: int
+    pending: int | None
+
+
+class StageMatrixRow(BaseModel):
+    assigned_stage: str
+    cells: dict[str, int]
+
+
+class StageMatrixResponse(BaseModel):
+    stages: list[str]
+    rows: list[StageMatrixRow]
 
 
 class DispositionSummaryRow(BaseModel):
@@ -18,6 +27,7 @@ class DispositionSummaryRow(BaseModel):
 
 class FOSDashboardResponse(BaseModel):
     stage_summary: list[StageSummaryRow]
+    stage_matrix: StageMatrixResponse
     disposition_summary: list[DispositionSummaryRow]
     follow_up_today_count: int
 
@@ -29,6 +39,8 @@ class AgentStageSummary(BaseModel):
 
 
 class AdminDashboardResponse(BaseModel):
+    total_leads: int
     overall_stage_summary: list[StageSummaryRow]
+    overall_stage_matrix: StageMatrixResponse
     agent_wise_summary: list[AgentStageSummary]
     disposition_summary: list[DispositionSummaryRow]

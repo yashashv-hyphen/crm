@@ -19,6 +19,7 @@ class LeadResponse(BaseModel):
     seller_name: str | None
     mobile_number: str | None
     alternate_phone: str | None = None
+    alternate_phone_2: str | None = None
     email_id: str | None
     stage_assigned: str | None
     date_of_assignment: date | None
@@ -40,7 +41,10 @@ class LeadResponse(BaseModel):
     open_spending_entry_date: date | None
     narf_entry_date: date | None
     gsi_entry_date: date | None
+    call_count: int = 0
+    total_call_time: float = 0.0
     custom_data: dict | None
+    is_self_created: bool = False
     is_archived: bool
     archive_year: int | None
     aging_days: int | None = None
@@ -58,6 +62,7 @@ class LeadUpdateRequest(BaseModel):
     remark: str | None = None
     follow_up_date: date | None = None
     alternate_phone: str | None = None
+    alternate_phone_2: str | None = None
     custom_data: dict | None = None
 
 
@@ -65,6 +70,8 @@ class LeadFilters(BaseModel):
     activity_id: uuid.UUID | None = None
     fos_id: uuid.UUID | None = None
     current_stage: str | None = None
+    assigned_stage_bucket: str | None = None
+    current_stage_bucket: str | None = None
     sub_disposition: str | None = None
     follow_up_date: date | None = None
     aging_color: str | None = None
@@ -74,6 +81,12 @@ class LeadFilters(BaseModel):
     from_date: date | None = None
     to_date: date | None = None
     upload_file_id: uuid.UUID | None = None
+
+
+class NewRegistrationRequest(BaseModel):
+    mobile_number: str
+    email_id: str | None = None
+    seller_name: str | None = None
 
 
 class BulkUpdateRequest(BaseModel):

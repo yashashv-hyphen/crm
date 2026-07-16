@@ -81,6 +81,7 @@ export default function LeadDetailDrawer({ lead: initialLead, onClose, onSaved }
     remark: '',
     follow_up_date: '',
     alternate_phone: '',
+    alternate_phone_2: '',
   })
   const queryClient = useQueryClient()
 
@@ -99,6 +100,7 @@ export default function LeadDetailDrawer({ lead: initialLead, onClose, onSaved }
         remark: lead.remark || '',
         follow_up_date: lead.follow_up_date || '',
         alternate_phone: lead.alternate_phone || '',
+        alternate_phone_2: lead.alternate_phone_2 || '',
       })
     }
   }, [lead?.id])
@@ -120,6 +122,7 @@ export default function LeadDetailDrawer({ lead: initialLead, onClose, onSaved }
     if (form.remark !== (lead.remark || '')) updates.remark = form.remark || null
     if (form.follow_up_date !== (lead.follow_up_date || '')) updates.follow_up_date = form.follow_up_date || null
     if (form.alternate_phone !== (lead.alternate_phone || '')) updates.alternate_phone = form.alternate_phone || null
+    if (form.alternate_phone_2 !== (lead.alternate_phone_2 || '')) updates.alternate_phone_2 = form.alternate_phone_2 || null
     if (!Object.keys(updates).length) { toast('No changes to save', { icon: 'ℹ️' }); return }
     mutation.mutate(updates)
   }
@@ -137,7 +140,12 @@ export default function LeadDetailDrawer({ lead: initialLead, onClose, onSaved }
             <p className="text-xs text-gray-500">Merchant ID</p>
             <p className="font-mono text-sm font-bold text-gray-800">{lead.merchant_id}</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+          <div className="flex items-center gap-2">
+            {lead.is_self_created && (
+              <span className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">New Registration</span>
+            )}
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -165,10 +173,25 @@ export default function LeadDetailDrawer({ lead: initialLead, onClose, onSaved }
               <DetailRow label="Seller Name" value={lead.seller_name} />
               <DetailRow label="Mobile Number" value={lead.mobile_number} />
               <DetailRow label="Alternate Phone" value={lead.alternate_phone} />
+              <DetailRow label="Alternate Phone 2" value={lead.alternate_phone_2} />
               <DetailRow label="Email" value={lead.email_id} />
               <DetailRow label="Stage Assigned" value={lead.stage_assigned} />
               <DetailRow label="Assignment Date" value={lead.date_of_assignment} />
-              <DetailRow label="Week / Year" value={lead.week_no ? `Week ${lead.week_no}, ${lead.year}` : null} />
+              <DetailRow
+                label="Week / Year"
+                value={(() => {
+                  const wk = lead.week_no ?? (() => {
+                    if (!lead.date_of_assignment) return null
+                    const d = new Date(lead.date_of_assignment)
+                    const jan4 = new Date(d.getFullYear(), 0, 4)
+                    const startOfWeek1 = new Date(jan4)
+                    startOfWeek1.setDate(jan4.getDate() - jan4.getDay() + 1)
+                    return Math.ceil(((d - startOfWeek1) / 86400000 + 1) / 7)
+                  })()
+                  const yr = lead.year ?? (lead.date_of_assignment ? new Date(lead.date_of_assignment).getFullYear() : null)
+                  return wk ? `Week ${wk}, ${yr}` : null
+                })()}
+              />
 
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-3 mb-1">Stage Status</p>
               <DetailRow label="Current Stage" value={lead.current_stage} />
@@ -192,6 +215,22 @@ export default function LeadDetailDrawer({ lead: initialLead, onClose, onSaved }
                   )}
                 </div>
               </div>
+
+              {(lead.call_count > 0 || lead.total_call_time > 0) && (
+                <>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-3 mb-1">Call Activity</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-blue-50 rounded-lg px-3 py-2 text-center">
+                      <div className="text-lg font-bold text-blue-700">{lead.call_count ?? 0}</div>
+                      <div className="text-xs text-blue-500">Total Calls</div>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg px-3 py-2 text-center">
+                      <div className="text-lg font-bold text-blue-700">{(+lead.total_call_time || 0).toFixed(2)} min</div>
+                      <div className="text-xs text-blue-500">Total Call Time</div>
+                    </div>
+                  </div>
+                </>
+              )}
 
               {lead.remark && (
                 <>
@@ -243,6 +282,16 @@ export default function LeadDetailDrawer({ lead: initialLead, onClose, onSaved }
                   onChange={(e) => setForm((f) => ({ ...f, alternate_phone: e.target.value }))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter alternate phone"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Alternate Phone Number 2</label>
+                <input
+                  type="tel"
+                  value={form.alternate_phone_2}
+                  onChange={(e) => setForm((f) => ({ ...f, alternate_phone_2: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter second alternate phone"
                 />
               </div>
               <div>

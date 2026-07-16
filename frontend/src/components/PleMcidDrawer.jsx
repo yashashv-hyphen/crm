@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getPleMcidDetail, getPleMcidHistory, updatePleMcid } from '../api/ple'
+import { TickCross } from './StatusBadge'
 import toast from 'react-hot-toast'
 
 function DetailRow({ label, value }) {
@@ -9,6 +10,15 @@ function DetailRow({ label, value }) {
     <div className="flex gap-2 py-1.5 border-b border-gray-50 last:border-0">
       <span className="text-xs text-gray-500 w-40 shrink-0">{label}</span>
       <span className="text-xs text-gray-800 font-medium break-all">{value}</span>
+    </div>
+  )
+}
+
+function DetailStatusRow({ label, value }) {
+  return (
+    <div className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
+      <span className="text-xs text-gray-500 w-40 shrink-0">{label}</span>
+      <TickCross value={value} />
     </div>
   )
 }
@@ -31,16 +41,13 @@ const PENDING_CHECKS = [
 
 function PendingChecklist({ record }) {
   return (
-    <div className="grid grid-cols-1 gap-1 mb-4 bg-gray-50 rounded-lg p-3">
-      {PENDING_CHECKS.map(({ label, field }) => {
-        const done = !!record[field]
-        return (
-          <div key={field} className="flex items-center gap-2 text-xs">
-            <span className={done ? 'text-green-600' : 'text-red-500'}>{done ? '✔' : '✖'}</span>
-            <span className="text-gray-700">{label}</span>
-          </div>
-        )
-      })}
+    <div className="grid grid-cols-1 gap-1.5 mb-4 bg-gray-50 rounded-lg p-3">
+      {PENDING_CHECKS.map(({ label, field }) => (
+        <div key={field} className="flex items-center gap-2 text-xs">
+          <TickCross value={record[field]} />
+          <span className="text-gray-700">{label}</span>
+        </div>
+      ))}
     </div>
   )
 }
@@ -185,15 +192,15 @@ export default function PleMcidDrawer({ mcid, onClose }) {
               <DetailRow label="Marketplace ID" value={record.marketplace_id} />
 
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-3 mb-1">Status Fields</p>
-              <DetailRow label="FBA Status" value={record.fba_status} />
-              <DetailRow label="SP Status" value={record.sp_status} />
-              <DetailRow label="CL Status" value={record.cl_status} />
-              <DetailRow label="CP Adoption" value={record.cp_adoption} />
-              <DetailRow label="Cross Launch" value={record.narf_cross_launch} />
-              <DetailRow label="Cross Launch Final Stage" value={record.cross_launch_final_stage} />
-              <DetailRow label="Launch Y/N" value={record.launch_yn} />
-              <DetailRow label="SP Y/N" value={record.sp_yn} />
-              <DetailRow label="Coupons Y/N" value={record.coupons_yn} />
+              <DetailStatusRow label="FBA Status" value={record.fba_status} />
+              <DetailStatusRow label="SP Status" value={record.sp_status} />
+              <DetailStatusRow label="CL Status" value={record.cl_status} />
+              <DetailStatusRow label="CP Adoption" value={record.cp_adoption} />
+              <DetailStatusRow label="Cross Launch" value={record.narf_cross_launch} />
+              <DetailStatusRow label="Cross Launch Final Stage" value={record.cross_launch_final_stage} />
+              <DetailStatusRow label="Launch Y/N" value={record.launch_yn} />
+              <DetailStatusRow label="SP Y/N" value={record.sp_yn} />
+              <DetailStatusRow label="Coupons Y/N" value={record.coupons_yn} />
 
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-3 mb-1">Dates</p>
               <DetailRow label="Launch Date" value={record.launch_date} />
@@ -206,16 +213,20 @@ export default function PleMcidDrawer({ mcid, onClose }) {
               <DetailRow label="Coupon Launch Week" value={record.coupon_launch_week} />
 
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-3 mb-1">Metrics</p>
-              <DetailRow label="SP Spend" value={record.sp_spend?.toLocaleString()} />
+              <DetailRow label="SP Spend" value={record.sp_spend != null && <span className="text-emerald-700">{record.sp_spend.toLocaleString()}</span>} />
               <DetailRow label="Total Live Selection" value={record.total_live_selection?.toLocaleString()} />
               <DetailRow label="FBA Live Selection" value={record.fba_live_selection?.toLocaleString()} />
               <DetailRow label="FBA Live Selection (WF)" value={record.fba_live_selection_wf?.toLocaleString()} />
               <DetailRow label="Buyable ASIN" value={record.buyable_asin?.toLocaleString()} />
-              <DetailRow label="Total GMS" value={record.total_gms?.toLocaleString()} />
-              <DetailRow label="FBA GMS" value={record.fba_gms?.toLocaleString()} />
+              <DetailRow label="Total GMS" value={record.total_gms != null && <span className="text-blue-700 font-semibold">{record.total_gms.toLocaleString()}</span>} />
+              <DetailRow label="FBA GMS" value={record.fba_gms != null && <span className="text-blue-700 font-semibold">{record.fba_gms.toLocaleString()}</span>} />
               <DetailRow label="SWAS" value={record.swas?.toLocaleString()} />
               <DetailRow label="FBA SWAS" value={record.fba_swas?.toLocaleString()} />
               <DetailRow label="FBA Intransit" value={record.fba_intransit?.toLocaleString()} />
+
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-3 mb-1">Call Activity</p>
+              <DetailRow label="Calls" value={record.call_count?.toLocaleString()} />
+              <DetailRow label="Call Time (min)" value={record.total_call_time?.toLocaleString()} />
             </div>
           )}
 

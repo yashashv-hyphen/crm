@@ -5,7 +5,7 @@ celery_app = Celery(
     "crm",
     broker=settings.redis_url,
     backend=settings.redis_url,
-    include=["app.tasks.excel_upload_task", "app.tasks.final_stage_task"],
+    include=["app.tasks.excel_upload_task", "app.tasks.final_stage_task", "app.tasks.ple_upload_task"],
 )
 
 celery_app.conf.update(

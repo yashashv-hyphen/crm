@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from app.routers import auth, users, activities, leads, uploads, dashboard, reports, templates, events
+from app.routers import auth, users, activities, leads, uploads, dashboard, reports, templates, events, campaigns, ple
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -50,6 +50,8 @@ app.include_router(dashboard.router)
 app.include_router(reports.router)
 app.include_router(templates.router)
 app.include_router(events.router)
+app.include_router(campaigns.router)
+app.include_router(ple.router)
 
 
 @app.get("/api/health")

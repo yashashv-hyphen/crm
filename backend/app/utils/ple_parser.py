@@ -176,7 +176,7 @@ def parse_field(field: str, value):
 LAUNCHES_FIELDS: list[tuple[str, list[str]]] = [
     ("mcid", ["merchant customer id", "mcid", "merchant id"]),
     ("agent_name", ["bd am", "opportunity owner", "fba opportunity owner", "gse name", "gse", "agent", "owner"]),
-    ("marketplace_id", ["marketplace id", "marketplace"]),
+    ("marketplace_id", ["marketplace id", "market id", "mp id", "marketplace"]),
     ("fba_live_selection", ["fba live selection", "fba live seletion", "fba ba t4w"]),
     ("fba_status", ["fba status", "is fba launched", "is fba active", "fba active", "is fba"]),
     ("sp_status", ["sp status", "is sp active", "is sp"]),
@@ -196,6 +196,7 @@ LAUNCHES_SHEET_NAME_HINTS = ["raw"]
 
 MCID_DETAIL_FIELDS: list[tuple[str, list[str]]] = [
     ("mcid", ["mcid"]),
+    ("marketplace_id", ["marketplace id", "market id", "mp id", "marketplace"]),
     ("agent_name", ["gse name", "gse"]),
     ("fba_launch_date", ["fba launch date"]),
     ("fba_launch_week", ["fba launch week"]),
@@ -208,7 +209,7 @@ MCID_DETAIL_FIELDS: list[tuple[str, list[str]]] = [
     ("fba_live_selection_wf", ["fba live selection", "fba live seletion"]),
     ("total_live_selection", ["total live selection", "buyable asin"]),
     ("fba_gms", ["fba gms"]),
-    ("total_gms", ["total gms"]),
+    ("total_gms", ["total gms", "ytd gms"]),
     ("fba_swas", ["fba swas"]),
     ("swas", ["swas"]),
     ("fba_intransit", ["fba intransit", "fba in transit"]),
@@ -237,6 +238,9 @@ def upsert_ple_record(session, mcid: str, values: dict, source: str) -> PleRecor
                 rec.agent_name = value
             continue
         setattr(rec, field, value)
+
+    if rec.launch_date and rec.launch_week:
+        rec.launch_yn = "Yes"
 
     now = datetime.now(timezone.utc)
     if source == "launches":

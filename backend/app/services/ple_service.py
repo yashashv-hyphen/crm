@@ -7,6 +7,7 @@ from sqlalchemy import select, func, case
 
 from app.models.ple_record import PleRecord
 from app.models.ple_record_history import PleRecordHistory
+from app.models.lead import Lead
 from app.models.user import User
 from app.schemas.ple import (
     PleAgentSummaryRow, PleMcidDetailRow, PleMcidUpdateRequest, PleRecordHistoryEntry,
@@ -37,12 +38,24 @@ async def get_agent_summary(db: AsyncSession) -> list[PleAgentSummaryRow]:
     return [PleAgentSummaryRow(**row._mapping) for row in result.all()]
 
 
+def _to_mcid_detail_row(rec: PleRecord, call_count: int | None, total_call_time) -> PleMcidDetailRow:
+    row = PleMcidDetailRow.model_validate(rec)
+    row.call_count = call_count
+    row.total_call_time = float(total_call_time) if total_call_time is not None else None
+    return row
+
+
 async def get_mcid_detail(db: AsyncSession, agent_user_id: uuid.UUID | None = None) -> list[PleMcidDetailRow]:
-    query = select(PleRecord).order_by(PleRecord.mcid).limit(MAX_MCID_ROWS)
+    query = (
+        select(PleRecord, Lead.call_count, Lead.total_call_time)
+        .outerjoin(Lead, Lead.merchant_id == PleRecord.mcid)
+        .order_by(PleRecord.mcid)
+        .limit(MAX_MCID_ROWS)
+    )
     if agent_user_id is not None:
         query = query.where(PleRecord.agent_user_id == agent_user_id)
     result = await db.execute(query)
-    return [PleMcidDetailRow.model_validate(rec) for rec in result.scalars().all()]
+    return [_to_mcid_detail_row(rec, call_count, total_call_time) for rec, call_count, total_call_time in result.all()]
 
 
 _EDITABLE_FIELDS = {
@@ -82,10 +95,18 @@ async def update_mcid_record(
             ))
             setattr(rec, field, new_value)
 
+    if rec.launch_date and rec.launch_week:
+        rec.launch_yn = "Yes"
+
     rec.updated_at = datetime.now(timezone.utc)
     await db.flush()
     await db.refresh(rec)
-    return PleMcidDetailRow.model_validate(rec)
+
+    lead_row = (await db.execute(
+        select(Lead.call_count, Lead.total_call_time).where(Lead.merchant_id == rec.mcid)
+    )).first()
+    call_count, total_call_time = lead_row if lead_row else (None, None)
+    return _to_mcid_detail_row(rec, call_count, total_call_time)
 
 
 async def get_mcid_history(db: AsyncSession, mcid: str, current_user: User) -> list[PleRecordHistoryEntry]:

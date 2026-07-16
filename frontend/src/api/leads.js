@@ -16,3 +16,5 @@ export const downloadLeads = (params) =>
 export const getLead = (id) => api.get(`/leads/${id}`)
 
 export const getLeadHistory = (leadId) => api.get(`/leads/${leadId}/history`)
+
+export const createNewRegistration = (data) => api.post('/leads/register', data)

@@ -111,7 +111,12 @@ export default function LeadTable({ data, loading, page, pages, total, size, onP
                 <td className="px-3 py-2">
                   <AgingFlag color={lead.aging_color} />
                 </td>
-                <td className="px-3 py-2 font-mono text-xs text-gray-700">{lead.merchant_id}</td>
+                <td className="px-3 py-2 font-mono text-xs text-gray-700">
+                  {lead.merchant_id}
+                  {lead.is_self_created && (
+                    <span className="ml-1.5 inline-block bg-green-100 text-green-700 text-[10px] font-semibold px-1.5 py-0.5 rounded">NR</span>
+                  )}
+                </td>
                 <td className="px-3 py-2">{lead.seller_name}</td>
                 <td className="px-3 py-2 font-mono text-xs">{lead.mobile_number}</td>
                 <td className="px-3 py-2 text-xs text-gray-500">{lead.stage_assigned}</td>

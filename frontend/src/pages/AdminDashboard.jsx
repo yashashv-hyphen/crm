@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { getAdminDashboard } from '../api/dashboard'
 import { getPleAgentSummary, getPleMcidDetail } from '../api/ple'
 import PleMcidDrawer from '../components/PleMcidDrawer'
+import { TickCross } from '../components/StatusBadge'
+import StageMatrixTable from '../components/StageMatrixTable'
 
 const stageName = (name) => name?.replace(/ Pending$/i, '') ?? name
 
@@ -26,6 +28,7 @@ function PleAgentMcidTable({ agentUserId, agentName, onBack }) {
           <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
             <tr>
               <th className="px-5 py-3 text-left">MCID</th>
+              <th className="px-3 py-3 text-left">Marketplace ID</th>
               <th className="px-3 py-3 text-left">FBA Status</th>
               <th className="px-3 py-3 text-left">SP Status</th>
               <th className="px-3 py-3 text-left">CP Adoption</th>
@@ -33,24 +36,29 @@ function PleAgentMcidTable({ agentUserId, agentName, onBack }) {
               <th className="px-3 py-3 text-left">Cross Launch Final Stage</th>
               <th className="px-3 py-3 text-left">CL</th>
               <th className="px-3 py-3 text-right">Buyable ASIN</th>
+              <th className="px-3 py-3 text-right">Calls</th>
+              <th className="px-3 py-3 text-right">Call Time (min)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {isLoading ? (
-              <tr><td colSpan={8} className="px-5 py-6 text-center text-gray-400">Loading...</td></tr>
+              <tr><td colSpan={11} className="px-5 py-6 text-center text-gray-400">Loading...</td></tr>
             ) : !mcidDetail?.length ? (
-              <tr><td colSpan={8} className="px-5 py-6 text-center text-gray-400">No MCIDs for this agent</td></tr>
+              <tr><td colSpan={11} className="px-5 py-6 text-center text-gray-400">No MCIDs for this agent</td></tr>
             ) : (
               mcidDetail.map((row) => (
                 <tr key={row.mcid} className="hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedMcid(row.mcid)}>
                   <td className="px-5 py-3 font-mono text-blue-600 hover:underline">{row.mcid}</td>
-                  <td className="px-3 py-3">{row.fba_status || '—'}</td>
-                  <td className="px-3 py-3">{row.sp_status || '—'}</td>
-                  <td className="px-3 py-3">{row.cp_adoption || '—'}</td>
-                  <td className="px-3 py-3">{row.narf_cross_launch || '—'}</td>
-                  <td className="px-3 py-3">{row.cross_launch_final_stage || '—'}</td>
-                  <td className="px-3 py-3">{row.cl_status || '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.buyable_asin?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3">{row.marketplace_id || '—'}</td>
+                  <td className="px-3 py-3"><TickCross value={row.fba_status} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.sp_status} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.cp_adoption} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.narf_cross_launch} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.cross_launch_final_stage} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.cl_status} /></td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.buyable_asin?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.call_count?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.total_call_time?.toLocaleString() ?? '—'}</td>
                 </tr>
               ))
             )}
@@ -108,13 +116,13 @@ function PleTab() {
                 agentSummary.map((row) => (
                   <tr key={row.agent} className="hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedAgent(row)}>
                     <td className="px-5 py-3 font-medium text-blue-600 hover:underline">{row.agent}</td>
-                    <td className="px-3 py-3 text-right">{row.num_launches?.toLocaleString()}</td>
-                    <td className="px-3 py-3 text-right">{row.fba_status_count?.toLocaleString()}</td>
-                    <td className="px-3 py-3 text-right">{row.fba_live_selection?.toLocaleString()}</td>
-                    <td className="px-3 py-3 text-right">{row.sp_status_count?.toLocaleString()}</td>
-                    <td className="px-3 py-3 text-right">{row.cp_adoption_count?.toLocaleString()}</td>
-                    <td className="px-3 py-3 text-right">{row.narf_cross_launch_count?.toLocaleString()}</td>
-                    <td className="px-3 py-3 text-right">{row.buyable_asin?.toLocaleString()}</td>
+                    <td className="px-3 py-3 text-right font-medium text-gray-800">{row.num_launches?.toLocaleString()}</td>
+                    <td className="px-3 py-3 text-right text-emerald-700">{row.fba_status_count?.toLocaleString()}</td>
+                    <td className="px-3 py-3 text-right text-gray-700">{row.fba_live_selection?.toLocaleString()}</td>
+                    <td className="px-3 py-3 text-right text-indigo-700">{row.sp_status_count?.toLocaleString()}</td>
+                    <td className="px-3 py-3 text-right text-amber-700">{row.cp_adoption_count?.toLocaleString()}</td>
+                    <td className="px-3 py-3 text-right text-purple-700">{row.narf_cross_launch_count?.toLocaleString()}</td>
+                    <td className="px-3 py-3 text-right text-gray-700">{row.buyable_asin?.toLocaleString()}</td>
                   </tr>
                 ))
               )}
@@ -142,6 +150,13 @@ export default function AdminDashboard() {
     const params = new URLSearchParams()
     if (activityId) params.set('activity_id', activityId)
     if (fosId) params.set('fos_id', fosId)
+    navigate(`/admin/leads?${params}`)
+  }
+
+  const goToMatrixCell = (assignedBucket, currentBucket) => {
+    const params = new URLSearchParams()
+    params.set('assigned_stage_bucket', assignedBucket)
+    params.set('current_stage_bucket', currentBucket)
     navigate(`/admin/leads?${params}`)
   }
 
@@ -222,17 +237,18 @@ export default function AdminDashboard() {
         <div className="text-center py-12 text-gray-400">Loading...</div>
       ) : (
         <>
-          {/* Overall Stage Summary */}
+          <StageMatrixTable title="Stage Summary (All Agents)" matrix={data?.overall_stage_matrix} onCellClick={goToMatrixCell} />
+
+          {/* Other Stages (legacy activities outside the RNC/IDV/RTL/Launch flow) */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100">
-              <h2 className="font-semibold text-gray-700">Overall Stage Summary (All Agents)</h2>
+              <h2 className="font-semibold text-gray-700">Other Stages (All Agents)</h2>
             </div>
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
                 <tr>
                   <th className="px-5 py-3 text-left">Stage</th>
                   <th className="px-5 py-3 text-right">Total Assigned</th>
-                  <th className="px-5 py-3 text-right">Moved to Next</th>
                   <th className="px-5 py-3 text-right">Pending</th>
                 </tr>
               </thead>
@@ -253,8 +269,7 @@ export default function AdminDashboard() {
                         {row.total_assigned?.toLocaleString()}
                       </button>
                     </td>
-                    <td className="px-5 py-3 text-right text-gray-700">{row.moved_to_next?.toLocaleString()}</td>
-                    <td className="px-5 py-3 text-right text-gray-700">{row.pending?.toLocaleString()}</td>
+                    <td className="px-5 py-3 text-right text-gray-700">{row.pending != null ? row.pending.toLocaleString() : <span className="text-gray-400">—</span>}</td>
                   </tr>
                 ))}
               </tbody>
@@ -272,17 +287,10 @@ export default function AdminDashboard() {
                   <tr>
                     <th className="px-5 py-3 text-left">Agent</th>
                     {(data?.overall_stage_summary || []).map((s) => (
-                      <th key={s.activity_id ?? s.activity_name} className="px-3 py-3 text-right" colSpan={2}>
+                      <th key={s.activity_id ?? s.activity_name} className="px-3 py-3 text-right">
                         {stageName(s.activity_name)}
                       </th>
                     ))}
-                  </tr>
-                  <tr>
-                    <th className="px-5 py-3"></th>
-                    {(data?.overall_stage_summary || []).flatMap((s) => [
-                      <th key={`${s.activity_id ?? s.activity_name}-a`} className="px-3 py-2 text-right text-xs">Assigned</th>,
-                      <th key={`${s.activity_id ?? s.activity_name}-m`} className="px-3 py-2 text-right text-xs">Moved</th>,
-                    ])}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -296,16 +304,13 @@ export default function AdminDashboard() {
                           {agent.fos_name}
                         </button>
                       </td>
-                      {(data?.overall_stage_summary || []).flatMap((col) => {
+                      {(data?.overall_stage_summary || []).map((col) => {
                         const s = byKey[col.activity_id ?? col.activity_name]
-                        return [
-                          <td key={`${col.activity_id ?? col.activity_name}-a`} className="px-3 py-3 text-right">
+                        return (
+                          <td key={col.activity_id ?? col.activity_name} className="px-3 py-3 text-right">
                             {s ? s.total_assigned?.toLocaleString() : '—'}
-                          </td>,
-                          <td key={`${col.activity_id ?? col.activity_name}-m`} className="px-3 py-3 text-right">
-                            {s ? s.moved_to_next?.toLocaleString() : '—'}
-                          </td>,
-                        ]
+                          </td>
+                        )
                       })}
                     </tr>
                   )})}

@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { searchLeads } from '../api/leads'
 import LeadTable from '../components/LeadTable'
+import LeadDetailDrawer from '../components/LeadDetailDrawer'
 
 export default function Search() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [selectedLead, setSelectedLead] = useState(null)
 
   const handleSearch = async (e) => {
     e.preventDefault()
@@ -13,7 +15,7 @@ export default function Search() {
     setLoading(true)
     try {
       const { data } = await searchLeads(query)
-      setResults(data)
+      setResults(Array.isArray(data) ? data : (data.items ?? []))
     } finally {
       setLoading(false)
     }
@@ -41,13 +43,22 @@ export default function Search() {
 
       {results && (
         <LeadTable
-          data={results}
+          data={{ items: results, total: results.length, page: 1, pages: 1, size: results.length }}
           loading={false}
           page={1}
           pages={1}
-          total={results.total || 0}
-          size={50}
+          total={results.length}
+          size={results.length}
           onPageChange={() => {}}
+          onLeadClick={setSelectedLead}
+        />
+      )}
+
+      {selectedLead && (
+        <LeadDetailDrawer
+          lead={selectedLead}
+          onClose={() => setSelectedLead(null)}
+          onSaved={() => setSelectedLead(null)}
         />
       )}
     </div>

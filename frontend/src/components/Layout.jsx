@@ -44,8 +44,9 @@ export default function Layout() {
                 <NavLink to="/admin/dashboard" className={navClass}>Dashboard</NavLink>
                 <NavLink to="/admin/users" className={navClass}>Users</NavLink>
                 <NavLink to="/admin/activities" className={navClass}>Activities</NavLink>
-                <NavLink to="/admin/upload" className={navClass}>Upload Leads</NavLink>
+                <NavLink to="/admin/upload" className={navClass}>Uploads</NavLink>
                 <NavLink to="/admin/upload-final" className={navClass}>Upload Final Stage</NavLink>
+                <NavLink to="/admin/events" className={navClass}>Events</NavLink>
                 <NavLink to="/reports" className={navClass}>Reports</NavLink>
                 <NavLink to="/search" className={navClass}>Search</NavLink>
               </>
@@ -54,6 +55,7 @@ export default function Layout() {
                 <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
                 <NavLink to="/activities" className={navClass}>My Activities</NavLink>
                 <NavLink to="/follow-ups" className={navClass}>Follow-ups</NavLink>
+                <NavLink to="/events" className={navClass}>Events</NavLink>
                 <NavLink to="/search" className={navClass}>Search</NavLink>
                 <NavLink to="/reports" className={navClass}>Reports</NavLink>
               </>

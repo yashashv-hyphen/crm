@@ -6,7 +6,10 @@
       "Bash(docker info *)",
       "Bash(podman-compose ps *)",
       "Bash(podman-compose logs *)",
-      "Bash(podman logs *)"
+      "Bash(podman logs *)",
+      "Bash(docker compose *)",
+      "Bash(podman exec *)",
+      "Bash(python3 *)"
     ]
   },
   "enableAllProjectMcpServers": true,

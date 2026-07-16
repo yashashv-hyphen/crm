@@ -6,6 +6,8 @@ import { createNewRegistration } from '../api/leads'
 import { getPleMcidDetail } from '../api/ple'
 import { useAuth } from '../context/AuthContext'
 import PleMcidDrawer from '../components/PleMcidDrawer'
+import { TickCross } from '../components/StatusBadge'
+import StageMatrixTable, { ClickableNumber } from '../components/StageMatrixTable'
 import toast from 'react-hot-toast'
 
 const stageName = (name) => name?.replace(/ Pending$/i, '') ?? name
@@ -55,44 +57,48 @@ function PleTab() {
               <th className="px-3 py-3 text-right">SWAS</th>
               <th className="px-3 py-3 text-right">FBA SWAS</th>
               <th className="px-3 py-3 text-right">FBA Intransit</th>
+              <th className="px-3 py-3 text-right">Calls</th>
+              <th className="px-3 py-3 text-right">Call Time (min)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {isLoading ? (
-              <tr><td colSpan={28} className="px-5 py-6 text-center text-gray-400">Loading...</td></tr>
+              <tr><td colSpan={30} className="px-5 py-6 text-center text-gray-400">Loading...</td></tr>
             ) : !mcidDetail?.length ? (
-              <tr><td colSpan={28} className="px-5 py-6 text-center text-gray-400">No PLE data for your MCIDs yet</td></tr>
+              <tr><td colSpan={30} className="px-5 py-6 text-center text-gray-400">No PLE data for your MCIDs yet</td></tr>
             ) : (
               mcidDetail.map((row) => (
                 <tr key={row.mcid} className="hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedMcid(row.mcid)}>
                   <td className="px-5 py-3 font-mono text-blue-600 hover:underline">{row.mcid}</td>
                   <td className="px-3 py-3">{row.marketplace_id || '—'}</td>
-                  <td className="px-3 py-3">{row.fba_status || '—'}</td>
-                  <td className="px-3 py-3">{row.sp_status || '—'}</td>
-                  <td className="px-3 py-3">{row.cp_adoption || '—'}</td>
-                  <td className="px-3 py-3">{row.narf_cross_launch || '—'}</td>
-                  <td className="px-3 py-3">{row.cross_launch_final_stage || '—'}</td>
-                  <td className="px-3 py-3">{row.launch_yn || '—'}</td>
-                  <td className="px-3 py-3">{row.sp_yn || '—'}</td>
-                  <td className="px-3 py-3">{row.coupons_yn || '—'}</td>
+                  <td className="px-3 py-3"><TickCross value={row.fba_status} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.sp_status} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.cp_adoption} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.narf_cross_launch} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.cross_launch_final_stage} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.launch_yn} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.sp_yn} /></td>
+                  <td className="px-3 py-3"><TickCross value={row.coupons_yn} /></td>
                   <td className="px-3 py-3">{row.launch_date || '—'}</td>
                   <td className="px-3 py-3">{row.launch_week || '—'}</td>
                   <td className="px-3 py-3">{row.fba_launch_date || '—'}</td>
                   <td className="px-3 py-3">{row.fba_launch_week || '—'}</td>
                   <td className="px-3 py-3">{row.sp_launch_date || '—'}</td>
                   <td className="px-3 py-3">{row.sp_launch_week || '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.sp_spend?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-emerald-700 font-medium">{row.sp_spend?.toLocaleString() ?? '—'}</td>
                   <td className="px-3 py-3">{row.cp_launch_date || '—'}</td>
                   <td className="px-3 py-3">{row.coupon_launch_week || '—'}</td>
-                  <td className="px-3 py-3">{row.cl_status || '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.total_live_selection?.toLocaleString() ?? '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.fba_live_selection_wf?.toLocaleString() ?? '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.buyable_asin?.toLocaleString() ?? '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.total_gms?.toLocaleString() ?? '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.fba_gms?.toLocaleString() ?? '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.swas?.toLocaleString() ?? '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.fba_swas?.toLocaleString() ?? '—'}</td>
-                  <td className="px-3 py-3 text-right">{row.fba_intransit?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3"><TickCross value={row.cl_status} /></td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.total_live_selection?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.fba_live_selection_wf?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.buyable_asin?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-blue-700 font-medium">{row.total_gms?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-blue-700 font-medium">{row.fba_gms?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.swas?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.fba_swas?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.fba_intransit?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.call_count?.toLocaleString() ?? '—'}</td>
+                  <td className="px-3 py-3 text-right text-gray-700">{row.total_call_time?.toLocaleString() ?? '—'}</td>
                 </tr>
               ))
             )}
@@ -100,14 +106,6 @@ function PleTab() {
         </table>
       </div>
     </div>
-  )
-}
-
-function ClickableNumber({ value, onClick }) {
-  return (
-    <button onClick={onClick} className="text-blue-600 hover:underline font-semibold">
-      {value?.toLocaleString()}
-    </button>
   )
 }
 
@@ -208,6 +206,13 @@ export default function FosDashboard() {
     navigate(`/leads?${params}`)
   }
 
+  const goToMatrixCell = (assignedBucket, currentBucket) => {
+    const params = new URLSearchParams()
+    params.set('assigned_stage_bucket', assignedBucket)
+    params.set('current_stage_bucket', currentBucket)
+    navigate(`/leads?${params}`)
+  }
+
   if (isLoading) return <div className="text-center py-12 text-gray-400">Loading...</div>
 
   const followUpCount = data?.follow_up_today_count || 0
@@ -260,17 +265,18 @@ export default function FosDashboard() {
 
       {activeTab === 'stages' && (
         <>
-      {/* Stage Summary Table */}
+      <StageMatrixTable title="Stage Summary" matrix={data?.stage_matrix} onCellClick={goToMatrixCell} />
+
+      {/* Other Stages Table (legacy activities outside the RNC/IDV/RTL/Launch flow) */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-700">Stage Summary</h2>
+          <h2 className="font-semibold text-gray-700">Other Stages</h2>
         </div>
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
             <tr>
               <th className="px-5 py-3 text-left">Stage</th>
               <th className="px-5 py-3 text-right">Total Assigned</th>
-              <th className="px-5 py-3 text-right">Moved to Next</th>
               <th className="px-5 py-3 text-right">Pending</th>
             </tr>
           </thead>
@@ -285,9 +291,6 @@ export default function FosDashboard() {
                 </td>
                 <td className="px-5 py-3 text-right">
                   <ClickableNumber value={row.total_assigned} onClick={() => goToLeads(row.activity_id, 'all', !row.activity_id ? row.activity_name : null)} />
-                </td>
-                <td className="px-5 py-3 text-right">
-                  <ClickableNumber value={row.moved_to_next} onClick={() => goToLeads(row.activity_id, 'moved', !row.activity_id ? row.activity_name : null)} />
                 </td>
                 <td className="px-5 py-3 text-right">
                   <ClickableNumber value={row.pending} onClick={() => goToLeads(row.activity_id, 'pending', !row.activity_id ? row.activity_name : null)} />

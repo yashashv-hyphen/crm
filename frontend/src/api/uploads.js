@@ -9,6 +9,22 @@ export const uploadTemplate1 = (file, activityId) => {
   })
 }
 
+export const uploadRegular = (file) => {
+  const form = new FormData()
+  form.append('file', file)
+  return api.post('/uploads/regular', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
+export const uploadCalls = (file) => {
+  const form = new FormData()
+  form.append('file', file)
+  return api.post('/uploads/calls', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
 export const uploadTemplate2 = (file) => {
   const form = new FormData()
   form.append('file', file)

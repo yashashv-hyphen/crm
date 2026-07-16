@@ -12,6 +12,8 @@ import UserManagement from './pages/admin/UserManagement'
 import ActivityManagement from './pages/admin/ActivityManagement'
 import UploadLeads from './pages/admin/UploadLeads'
 import UploadFinalStage from './pages/admin/UploadFinalStage'
+import AdminEvents from './pages/admin/AdminEvents'
+import FosEvents from './pages/FosEvents'
 import Layout from './components/Layout'
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -43,13 +45,16 @@ export default function App() {
             <Route path="/follow-ups" element={<FollowUps />} />
             <Route path="/search" element={<Search />} />
             <Route path="/reports" element={<PerformanceReport />} />
+            <Route path="/events" element={<FosEvents />} />
           </Route>
           <Route element={<ProtectedRoute adminOnly><Layout /></ProtectedRoute>}>
+            <Route path="/admin/leads" element={<LeadTablePage />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<UserManagement />} />
             <Route path="/admin/activities" element={<ActivityManagement />} />
             <Route path="/admin/upload" element={<UploadLeads />} />
             <Route path="/admin/upload-final" element={<UploadFinalStage />} />
+            <Route path="/admin/events" element={<AdminEvents />} />
           </Route>
         </Routes>
       </BrowserRouter>

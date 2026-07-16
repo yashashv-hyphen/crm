@@ -13,7 +13,9 @@ export default function LeadTablePage() {
   const [filters, setFilters] = useState({
     activity_id: searchParams.get('activity_id') || '',
     fos_id: searchParams.get('fos_id') || '',
-    current_stage: '',
+    assigned_stage_bucket: searchParams.get('assigned_stage_bucket') || '',
+    current_stage_bucket: searchParams.get('current_stage_bucket') || '',
+    current_stage: searchParams.get('current_stage') || '',
     is_archived: false,
   })
 

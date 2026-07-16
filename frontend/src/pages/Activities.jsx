@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { listActivities } from '../api/activities'
 
+const stageName = (name) => name?.replace(/ Pending$/i, '') ?? name
+
 export default function Activities() {
   const navigate = useNavigate()
   const [selectedActivity, setSelectedActivity] = useState(null)
@@ -39,7 +41,7 @@ export default function Activities() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-gray-800 group-hover:text-blue-700 transition">{activity.name}</h3>
+              <h3 className="font-semibold text-gray-800 group-hover:text-blue-700 transition">{stageName(activity.name)}</h3>
               <p className="text-xs text-gray-400 mt-1">{activity.sub_dispositions?.length || 0} sub-dispositions</p>
             </button>
           ))}

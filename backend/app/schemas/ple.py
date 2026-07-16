@@ -58,6 +58,11 @@ class PleMcidDetailRow(BaseModel):
     mcid_uploaded_at: datetime | None
     updated_at: datetime
 
+    # From the matching Lead (by merchant_id == mcid), if one exists —
+    # lets call-upload data surface anywhere PLE data is shown.
+    call_count: int | None = None
+    total_call_time: float | None = None
+
     model_config = {"from_attributes": True}
 
 

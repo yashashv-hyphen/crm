@@ -11,7 +11,7 @@ from app.models.upload_file import UploadFile as UploadFileModel
 from app.models.upload_error import UploadError
 from app.schemas.upload import UploadInitResponse, UploadStatusResponse, UploadErrorReport, UploadErrorRow
 from app.services.upload_service import create_upload_record
-from app.tasks.excel_upload_task import process_template1_upload, process_template2_upload
+from app.tasks.excel_upload_task import process_template1_upload, process_template2_upload, process_regular_upload, process_call_upload
 
 router = APIRouter(prefix="/api/uploads", tags=["uploads"])
 
@@ -22,6 +22,14 @@ def _run_t1(upload_file_id: str) -> None:
 
 def _run_t2(upload_file_id: str) -> None:
     process_template2_upload.apply(args=[upload_file_id])
+
+
+def _run_regular(upload_file_id: str) -> None:
+    process_regular_upload.apply(args=[upload_file_id])
+
+
+def _run_calls(upload_file_id: str) -> None:
+    process_call_upload.apply(args=[upload_file_id])
 
 
 async def _bg(fn, upload_file_id: str) -> None:
@@ -56,6 +64,60 @@ async def upload_template1(
     background_tasks.add_task(_bg, _run_t1, str(record.id))
 
     return UploadInitResponse(upload_id=record.id, task_id=str(record.id), message="Upload queued for processing")
+
+
+@router.post("/regular", response_model=UploadInitResponse, status_code=status.HTTP_202_ACCEPTED)
+async def upload_regular(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    if not file.filename or not file.filename.endswith(".xlsx"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only .xlsx files are accepted")
+
+    file_bytes = await file.read()
+
+    record = await create_upload_record(
+        file_bytes=file_bytes,
+        filename=file.filename,
+        activity_id=None,
+        upload_type="regular",
+        admin=admin,
+        db=db,
+    )
+    await db.commit()
+
+    background_tasks.add_task(_bg, _run_regular, str(record.id))
+
+    return UploadInitResponse(upload_id=record.id, task_id=str(record.id), message="Regular upload queued for processing")
+
+
+@router.post("/calls", response_model=UploadInitResponse, status_code=status.HTTP_202_ACCEPTED)
+async def upload_calls(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    if not file.filename or not file.filename.endswith(".xlsx"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only .xlsx files are accepted")
+
+    file_bytes = await file.read()
+
+    record = await create_upload_record(
+        file_bytes=file_bytes,
+        filename=file.filename,
+        activity_id=None,
+        upload_type="calls",
+        admin=admin,
+        db=db,
+    )
+    await db.commit()
+
+    background_tasks.add_task(_bg, _run_calls, str(record.id))
+
+    return UploadInitResponse(upload_id=record.id, task_id=str(record.id), message="Call update queued for processing")
 
 
 @router.post("/template2", response_model=UploadInitResponse, status_code=status.HTTP_202_ACCEPTED)
@@ -95,7 +157,14 @@ async def get_upload_status(
     record = result.scalar_one_or_none()
     if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found")
-    return record
+    return UploadStatusResponse(
+        upload_id=record.id,
+        status=record.status,
+        total_rows=record.total_rows,
+        success_rows=record.success_rows,
+        error_rows=record.error_rows,
+        completed_at=record.completed_at,
+    )
 
 
 @router.get("/{upload_id}/errors", response_model=UploadErrorReport)

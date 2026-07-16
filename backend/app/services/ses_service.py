@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def _send_email(to_email: str, subject: str, body: str) -> None:
     if settings.environment == "development" or not settings.smtp_user:
-        logger.info("[DEV] Email to %s | Subject: %s | Body: %s", to_email, subject, body)
+        print(f"[DEV] Email to {to_email} | Subject: {subject} | Body: {body}", flush=True)
         return
 
     msg = MIMEMultipart()

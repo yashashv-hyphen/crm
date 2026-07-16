@@ -12,6 +12,7 @@ from app.models.lead_history import LeadHistory
 from app.models.lead_assignment import LeadAssignment
 from app.models.user import User
 from app.models.activity import Activity
+from app.services import stage_bucketing
 from app.schemas.lead import (
     LeadResponse, LeadUpdateRequest, LeadFilters,
     BulkUpdateRequest, PaginatedLeads,
@@ -107,6 +108,10 @@ def _build_lead_query(filters: LeadFilters, user: User):
         query = query.where(Lead.current_activity_id == filters.activity_id)
     if filters.current_stage:
         query = query.where(Lead.current_stage == filters.current_stage)
+    if filters.assigned_stage_bucket:
+        query = query.where(stage_bucketing.assigned_stage_condition(filters.assigned_stage_bucket))
+    if filters.current_stage_bucket:
+        query = query.where(stage_bucketing.current_stage_condition(filters.current_stage_bucket))
     if filters.sub_disposition:
         query = query.where(Lead.sub_disposition == filters.sub_disposition)
     if filters.follow_up_date:

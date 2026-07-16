@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, date
-from sqlalchemy import String, Boolean, Integer, Date, DateTime, Text, ForeignKey, func
+from sqlalchemy import String, Boolean, Integer, Date, DateTime, Text, ForeignKey, func, Numeric
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 
@@ -17,6 +17,7 @@ class Lead(Base):
     seller_name: Mapped[str | None] = mapped_column(String(500), nullable=True)
     mobile_number: Mapped[str | None] = mapped_column(String(20), nullable=True, index=True)
     alternate_phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    alternate_phone_2: Mapped[str | None] = mapped_column(String(20), nullable=True)
     email_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Upload metadata
@@ -49,6 +50,13 @@ class Lead(Base):
 
     # Custom column values (stored as JSON)
     custom_data: Mapped[dict | None] = mapped_column(JSONB, nullable=True, default=dict)
+
+    # Call tracking
+    call_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    total_call_time: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False, default=0)
+
+    # Self-created (New Registration)
+    is_self_created: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)
 
     # Archiving
     is_archived: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)

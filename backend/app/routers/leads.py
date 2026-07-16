@@ -14,6 +14,7 @@ from app.models.lead_history import LeadHistory
 from app.schemas.lead import (
     LeadResponse, LeadUpdateRequest, LeadFilters,
     BulkUpdateRequest, PaginatedLeads, LeadHistoryEntry,
+    NewRegistrationRequest,
 )
 from app.services import lead_service
 
@@ -101,6 +102,8 @@ async def list_leads(
     activity_id: uuid.UUID | None = None,
     fos_id: uuid.UUID | None = None,
     current_stage: str | None = None,
+    assigned_stage_bucket: str | None = None,
+    current_stage_bucket: str | None = None,
     sub_disposition: str | None = None,
     follow_up_date: date | None = None,
     aging_color: str | None = None,
@@ -119,6 +122,8 @@ async def list_leads(
         activity_id=activity_id,
         fos_id=fos_id if current_user.role == "admin" else None,
         current_stage=current_stage,
+        assigned_stage_bucket=assigned_stage_bucket,
+        current_stage_bucket=current_stage_bucket,
         sub_disposition=sub_disposition,
         follow_up_date=follow_up_date,
         aging_color=aging_color,
@@ -187,6 +192,37 @@ async def update_lead(
     current_user: User = Depends(get_current_user),
 ):
     return await lead_service.update_lead(lead_id, body, current_user, db)
+
+
+@router.post("/register", response_model=LeadResponse, status_code=201)
+async def create_new_registration(
+    body: NewRegistrationRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from datetime import datetime, timezone, date as date_type
+    from app.services.lead_service import enrich_lead
+
+    merchant_id = f"NR-{str(uuid.uuid4())[:8].upper()}"
+    today = date_type.today()
+
+    lead = Lead(
+        id=uuid.uuid4(),
+        merchant_id=merchant_id,
+        mobile_number=body.mobile_number.strip(),
+        email_id=body.email_id.strip() if body.email_id else None,
+        seller_name=body.seller_name.strip() if body.seller_name else None,
+        stage_assigned="New Registration",
+        current_stage="New Registration",
+        date_of_assignment=today,
+        assigned_fos_id=current_user.id,
+        is_self_created=True,
+    )
+    db.add(lead)
+    await db.flush()
+    result = await enrich_lead(lead, db)
+    await db.commit()
+    return result
 
 
 @router.post("/bulk-update")
